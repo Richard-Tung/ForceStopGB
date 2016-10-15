@@ -77,7 +77,7 @@ Windows命令行> p@tch.exe -p0 < api-24.win32.smali.patch
 
 ## 更新 `services.jar`
 
-把 `services.jar` 放入系统 `/system/framework/`，重启。
+把 `services.jar` 放入系统 `/system/framework/`，设置权限为 -rw-r-r (644)，重启。
 
 ## 进阶方式
 

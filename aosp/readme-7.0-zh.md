@@ -17,6 +17,13 @@
 - patch 打补丁，Linux/Mac OS X下自带，windows需要下载[Patch for Windows](http://gnuwin32.sourceforge.net/packages/patch.htm)，另外[Git for Windows](https://git-for-windows.github.io/)也自带。
 - [api-24.smali.patch](api-24.smali.patch)
 
+## 从系统中获取 `services.jar`
+
+```
+命令行> adb pull /system/framework/services.jar
+```
+如果`services.jar`文件很小（小于1kb），则需要按照下面步骤获取`services.odex`等其他文件，否则可以直接进行反编译 `services` 操作
+
 ## 从系统中获取 `services.odex` 与其他相关文件
 
 对于arm64设备：
@@ -33,6 +40,10 @@
 
 
 ## 反编译 `services`
+
+如果 `services.jar` 较大，则直接反编译 `services.jar` 即可。
+
+如果 `services.jar` 较小，则直接反编译 `services.odex` 即可。
 
 ### 反编译 `services.jar`
 

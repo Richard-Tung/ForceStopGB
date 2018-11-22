@@ -115,7 +115,12 @@ public class SystemServiceHook extends XC_MethodHook {
 
         hookActivityManagerServiceBindService(activityManagerService, classLoader);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+        if (Build.VERSION.SDK_INT >= 26) // Android 8.0+
+        {
+            Class<?> activityStackSupervisor = Class.forName("com.android.server.am.ActivityStackSupervisor", false, classLoader);
+            hookActivityManagerServiceCleanUpRemovedTaskLocked(activityStackSupervisor, classLoader);
+        }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             hookActivityManagerServiceCleanUpRemovedTaskLocked(activityManagerService, classLoader);
         }
 
@@ -223,6 +228,13 @@ public class SystemServiceHook extends XC_MethodHook {
             hookMethods(activityManagerService, method, hook);
         } catch (LinkageError e) {
             logLinkageError(method, e);
+            if (sdk >= 26) {
+                //sdk 26, sdk 27
+                Class<?> taskRecord = Class.forName("com.android.server.am.TaskRecord", false, classLoader);
+                XposedHelpers.findAndHookMethod(activityManagerService, method,
+                        taskRecord, boolean.class, boolean.class,
+                        hook);
+            }
             if (sdk >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                 // sdk 22, sdk 23
                 Class<?> taskRecord = Class.forName("com.android.server.am.TaskRecord", false, classLoader);
@@ -410,7 +422,16 @@ public class SystemServiceHook extends XC_MethodHook {
     }
 
     private static void hookActivity(ClassLoader classLoader) throws ClassNotFoundException {
-        Class<?> applicationThread = Class.forName("android.app.ApplicationThreadProxy", false, classLoader);
+        int sdk = Build.VERSION.SDK_INT;
+        Class<?> applicationThread;
+        if(sdk >= 26) //Android 8.0+
+        {
+            applicationThread= Class.forName("android.app.ActivityThread$ApplicationThread", false, classLoader);
+        }
+        else
+        {
+            applicationThread= Class.forName("android.app.ApplicationThreadProxy", false, classLoader);
+        }
         hookMethods(applicationThread, "scheduleLaunchActivity", new LaunchActivityHook());
 
         hookMethods(applicationThread, "scheduleResumeActivity", new ResumeActivityHook());
